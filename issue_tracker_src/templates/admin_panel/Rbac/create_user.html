@@ -1,0 +1,114 @@
+{% extends 'admin_panel/index.html' %}
+{% block title %} Home {% endblock title%}
+{% block main_content %}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal">
+ Create New User
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create New User</h5>
+      </div>
+      <form role="form" action="" method="POST">
+								    {% csrf_token %}
+      <div class="modal-body">
+        <div class="col-md-12">
+						<div class="panel panel-primary ">
+							<div class="panel-body">
+
+									<div class="form-group">
+										<label for="{{form.username.id_for_label}}">{{form.username.label}}</label>
+										{{form.username}}
+										<span class="text-danger">{{form.username.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.first_name.id_for_label}}">{{form.first_name.label}}</label>
+										{{form.first_name}}
+										<span class="text-danger">{{form.first_name.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.last_name.id_for_label}}">{{form.last_name.label}}</label>
+										{{form.last_name}}
+										<span class="text-danger">{{form.last_name.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.email.id_for_label}}">{{form.email.label}}</label>
+										{{form.email}}
+										<span class="text-danger">{{form.email.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.password1.id_for_label}}">Password</label>
+										{{form.password1}}
+										<span class="text-danger">{{form.password1.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.password2.id_for_label}}">Confirm Password</label>
+										{{form.password2}}
+										<span class="text-danger">{{form.password2.errors}}</span>
+									</div>
+
+							</div><!-- panel-body -->
+						</div>
+						<!-- panel -->
+					</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="col-md-12 m-t-5">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Datatable</h3>
+							</div>
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<table id="datatable" class="table table-striped table-bordered">
+											<thead>
+												<tr>
+													<th>Sl No</th>
+													<th>UserName</th>
+													<th>Email</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody>
+											{% for users_data in users %}
+												<tr>
+													<td>{{forloop.counter}}</td>
+													<td>{{users_data.username}}</td>
+													<td>{{users_data.email}}</td>
+													<td>61</td>
+												</tr>
+                                            {% endfor %}
+											</tbody>
+										</table>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+{% endblock main_content %}
