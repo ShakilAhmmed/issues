@@ -5,15 +5,18 @@ from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-
+from backend.models import CustomUser
 
 # Create your views here.
+
+
+
 def admin_login(request):
     if request.method == "POST":
         email = request.POST.get('email', None)
         password = request.POST.get('password', None)
         try:
-            get_user_name = User.objects.get(email=email)
+            get_user_name = CustomUser.objects.get(email=email)
             user_logged_in = authenticate(username=get_user_name, password=password)
             if user_logged_in is not None:
                 login(request, user_logged_in)

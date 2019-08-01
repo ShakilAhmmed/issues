@@ -46,6 +46,12 @@
 									</div>
 
 									<div class="form-group">
+										<label for="{{form.access_level.id_for_label}}">{{form.access_level.label}}</label>
+										{{form.access_level}}
+										<span class="text-danger">{{form.access_level.errors}}</span>
+									</div>
+
+									<div class="form-group">
 										<label for="{{form.password1.id_for_label}}">Password</label>
 										{{form.password1}}
 										<span class="text-danger">{{form.password1.errors}}</span>
@@ -76,7 +82,7 @@
 <div class="col-md-12 m-t-5">
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h3 class="panel-title">Datatable</h3>
+								<h3 class="panel-title">Users List</h3>
 							</div>
 							<div class="panel-body">
 								<div class="row">
@@ -87,6 +93,8 @@
 													<th>Sl No</th>
 													<th>UserName</th>
 													<th>Email</th>
+													<th>Access Level</th>
+													<th>Status</th>
 													<th>Action</th>
 												</tr>
 											</thead>
@@ -97,7 +105,13 @@
 													<td>{{forloop.counter}}</td>
 													<td>{{users_data.username}}</td>
 													<td>{{users_data.email}}</td>
-													<td>61</td>
+													<td>{{users_data.access_level}}</td>
+													<td>
+													    <input type="checkbox"  class="active" get_active="{{users_data.pk}}" {% if users_data.is_active%} checked {% endif %}>
+													</td>
+													<td>
+                                                            <button class="btn btn-danger delete_user" get_id="{{users_data.pk}}"><i class="fa fa-trash-o"></i></button>
+                                                    </td>
 												</tr>
                                             {% endfor %}
 											</tbody>
@@ -108,7 +122,53 @@
 							</div>
 						</div>
 					</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".delete_user").unbind().click(function(){
+      var get_id=$(this).attr('get_id');
+      $(this).closest("tr").remove();
+      $.ajax({
+            url:"{% url 'delete_user'%}",
+            type:"POST",
+            data:{
+                'csrfmiddlewaretoken':"{{csrf_token}}",
+                'id':get_id
+            },
+            success:function(data){
+                if(data.status==200){
+                     toastr.success('User Deleted Successfully');
+                 }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                toastr.warning('Internal Server Error');
+             }
 
+      });
+  });
+
+  $(".active").unbind().change(function() {
+        var get_active=$(this).attr('get_active');
+        $.ajax({
+            url:"{% url 'set_active' %}",
+            type:"POST",
+            data:{
+                 'csrfmiddlewaretoken':"{{csrf_token}}",
+                'id':get_active
+            },
+            success:function(data){
+                console.log(data)
+                if(data.status==200){
+                     toastr.success('User Status Set '+data.message);
+                 }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                toastr.warning('Internal Server Error');
+             }
+        });
+  });
+});
+</script>
 
 
 {% endblock main_content %}
