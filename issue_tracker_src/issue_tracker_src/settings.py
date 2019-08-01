@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'login_panel.apps.LoginPanelConfig',
     'backend.apps.BackendConfig'
 ]
+AUTH_USER_MODEL = 'backend.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
