@@ -1,0 +1,197 @@
+{% extends 'admin_panel/index.html' %}
+{% block title %} Home {% endblock title%}
+{% block main_content %}
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal">
+ Create New Project
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Create New Project</h5>
+      </div>
+      <form role="form" action="" method="POST">
+								    {% csrf_token %}
+      <div class="modal-body">
+        <div class="col-md-12">
+						<div class="panel panel-primary ">
+							<div class="panel-body">
+
+									<div class="form-group">
+										<label for="{{form.project_title.id_for_label}}">{{form.project_title.label}}</label>
+										{{form.project_title}}
+										<span class="text-danger">{{form.project_title.errors}}</span>
+									</div>
+
+
+									<div class="form-group">
+										<label for="{{form.project_description.id_for_label}}">{{form.project_description.label}}</label>
+										{{form.project_description}}
+										<span class="text-danger">{{form.project_description.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.project_status.id_for_label}}">{{form.project_status.label}}</label>
+										{{form.project_status}}
+										<span class="text-danger">{{form.project_status.errors}}</span>
+									</div>
+
+							</div><!-- panel-body -->
+						</div>
+						<!-- panel -->
+					</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+
+<div class="col-md-12 m-t-5">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Project List</h3>
+							</div>
+							<div class="panel-body">
+								<div class="row">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<table id="datatable" class="table table-striped table-bordered">
+											<thead>
+												<tr>
+													<th>Sl No</th>
+													<th>Project Name</th>
+													<th>Status</th>
+													<th>Created By</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody>
+											{% for projects_data in projects %}
+												<tr>
+													<td>{{forloop.counter}}</td>
+													<td>{{projects_data.project_title}}</td>
+													<td class="status">
+													    {% if projects_data.project_status == 'Active' %}
+                                                            <span class="text-primary"> {{projects_data.project_status}}</span>
+													    {% elif projects_data.project_status == 'Complete' %}
+                                                             <span class="text-success"> {{projects_data.project_status}}</span>
+													    {% else %}
+                                                             <span class="text-danger"> {{projects_data.project_status}}</span>
+													    {% endif %}
+
+													</td>
+													<td>{{projects_data.created_by__username}}</td>
+
+													<td>
+                                                            <button class="btn btn-danger delete_project" get_id="{{projects_data.pk}}"><i class="fa fa-trash-o"></i></button>
+
+                                                            <a href="">
+                                                                <button class="btn btn-primary"><i class="fa fa-pencil-square"></i></button>
+                                                            </a>
+
+                                                            <button data-toggle="modal" data-target="#StatusModal" class="btn btn-info update_project_status" get_id="{{projects_data.pk}}"><i class="fa fa-refresh"></i></button>
+                                                    </td>
+												</tr>
+                                            {% endfor %}
+											</tbody>
+										</table>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+<div class="modal fade" id="StatusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Update Status</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+            <input type="hidden" class="project_id"/>
+            <label for="{{form.project_status.id_for_label}}">Project Status</label>
+            <select class="form-control status_up" name="project_status">
+                <option>Active</option>
+                <option>Inactive</option>
+                <option>Complete</option>
+            </select>
+         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="close" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary update_the_status">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $(".delete_project").unbind().click(function(){
+      var get_id=$(this).attr('get_id');
+      $(this).closest("tr").remove();
+      $.ajax({
+            url:"{% url 'delete_project'%}",
+            type:"POST",
+            data:{
+                'csrfmiddlewaretoken':"{{csrf_token}}",
+                'id':get_id
+            },
+            success:function(data){
+                if(data.status==200){
+                     toastr.success('Project Deleted Successfully');
+
+                 }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                toastr.warning('Internal Server Error');
+             }
+
+      });
+  });
+
+  $(".update_project_status").unbind().click(function(){
+       var get_id=$(this).attr('get_id');
+       //var get_status= $(this).closest('tr').find('.status').text();
+       $(".project_id").val(get_id);
+  });
+
+  $(".update_the_status").unbind().click(function(){
+        var get_id=$(".project_id").val();
+        var status=$(".status_up").val();
+        $.ajax({
+            url:"{% url 'update_project_status' %}",
+            type:"POST",
+            data:{'id':get_id,'status':status,'csrfmiddlewaretoken':"{{csrf_token}}"},
+            success:function(data){
+                if(data.status==200){
+                     toastr.success('Project Status Changed Successfully');
+                     $("#close").click();
+                     window.location.reload();
+                 }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                toastr.warning('Internal Server Error');
+             }
+
+        });
+  });
+});
+</script>
+
+{% endblock main_content %}

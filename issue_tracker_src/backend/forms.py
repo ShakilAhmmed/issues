@@ -2,7 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from backend.models import CustomUser
+from backend.models import CustomUser, ProjectModel
+from tinymce.widgets import TinyMCE
 
 
 class SignUpForm(UserCreationForm):
@@ -23,3 +24,16 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'first_name', 'last_name', 'email', 'access_level', 'password1', 'password2',)
+
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = ProjectModel
+        fields = "__all__"
+        CHOICES = (('Active', 'Active'), ('Inactive', 'Inactive'), ('Complete', 'Complete'))
+        exclude = ['created_by']
+        widgets = {
+            'project_title': forms.TextInput(attrs={'class': 'form-control'}),
+            'project_status': forms.Select(choices=CHOICES, attrs={'class': 'form-control'}),
+            'project_description': TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'})
+        }

@@ -1,0 +1,76 @@
+{% extends 'admin_panel/index.html' %}
+{% block title %} Home {% endblock title%}
+{% block main_content %}
+
+<!-- Button trigger modal -->
+
+<!-- Modal -->
+
+      <form role="form" action="" method="POST">
+								    {% csrf_token %}
+      <div class="modal-body">
+        <div class="col-md-12">
+						<div class="panel panel-primary ">
+							<div class="panel-body">
+
+									<div class="form-group">
+										<label for="{{form.username.id_for_label}}">{{form.username.label}}</label>
+										{{form.username}}
+										<span class="text-danger">{{form.username.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.first_name.id_for_label}}">{{form.first_name.label}}</label>
+										{{form.first_name}}
+										<span class="text-danger">{{form.first_name.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.last_name.id_for_label}}">{{form.last_name.label}}</label>
+										{{form.last_name}}
+										<span class="text-danger">{{form.last_name.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.email.id_for_label}}">{{form.email.label}}</label>
+										{{form.email}}
+										<span class="text-danger">{{form.email.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.access_level.id_for_label}}">{{form.access_level.label}}</label>
+										{{form.access_level}}
+										<span class="text-danger">{{form.access_level.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.password1.id_for_label}}">Password</label>
+										{{form.password1}}
+										<span class="text-danger">{{form.password1.errors}}</span>
+									</div>
+
+									<div class="form-group">
+										<label for="{{form.password2.id_for_label}}">Confirm Password</label>
+										{{form.password2}}
+										<span class="text-danger">{{form.password2.errors}}</span>
+									</div>
+
+							</div><!-- panel-body -->
+							<div class="text-center">
+							    <button type="submit" class="btn btn-primary">Save</button>
+							</div>
+						</div>
+						<!-- panel -->
+
+					</div>
+
+      </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+
+
+{% endblock main_content %}
