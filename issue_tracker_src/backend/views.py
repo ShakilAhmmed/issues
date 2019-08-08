@@ -4,10 +4,12 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-
+from .serializers import CustomUserSerializer
 # Create your views here.
-from .models import CustomUser
-from .forms import SignUpForm
+from django.views import View
+
+from .models import CustomUser, ProjectModel
+from .forms import SignUpForm, ProjectForm
 
 
 @login_required()
@@ -15,9 +17,29 @@ def backend(request):
     return render(request, 'admin_panel/home.html')
 
 
+# class CrateUser(View):
+#     template_name = 'admin_panel/Rbac/create_user.html'
+#
+#     def get(self, request):
+#         users = CustomUser.objects.all()
+#         form = SignUpForm()
+#         context = {
+#             'form': form,
+#             'users': users
+#         }
+#         return render(request, self.template_name, context)
+#
+#     def post(self, request):
+#         form = SignUpForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             messages.success(request, "New User Created Successfully")
+#             return HttpResponseRedirect(reverse('create_user'))
+
+
 @login_required()
 def create_user(request):
-    users = CustomUser.objects.all()
+    users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -31,6 +53,23 @@ def create_user(request):
         'users': users
     }
     return render(request, 'admin_panel/Rbac/create_user.html', context)
+
+
+@login_required()
+def edit_user(request, pk):
+    users = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        form = SignUpForm(request.POST, instance=users)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "User Updated Successfully")
+            return HttpResponseRedirect(reverse('create_user', kwargs={'pk': pk}))
+    else:
+        form = SignUpForm(instance=users)
+    context = {
+        'form': form,
+    }
+    return render(request, 'admin_panel/Rbac/edit_user.html', context)
 
 
 @login_required()
@@ -50,6 +89,17 @@ def set_active(request):
 
 
 @login_required()
+def edit_user_serialize(request):
+    response = {}
+    if request.method == "POST":
+        get_user = get_object_or_404(CustomUser, pk=request.POST.get('edit_id'))
+        serialize = CustomUserSerializer(get_user)
+        response['status'] = 200
+        response['user'] = serialize.data
+        return JsonResponse(response)
+
+
+@login_required()
 def delete_user(request):
     if request.method == "POST":
         get_user = CustomUser.objects.filter(pk=request.POST.get('id')).delete()
@@ -58,4 +108,39 @@ def delete_user(request):
 
 @login_required()
 def project(request):
-    return HttpResponse("Ok")
+    projects = ProjectModel.objects.select_related().all().values('pk', 'project_title', 'project_status',
+                                                                  'created_by__username')
+    # bool(projects)
+    # print(projects.count())
+
+    if request.method == "POST":
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            save_data = form.save(commit=False)
+            save_data.created_by = request.user
+            save_data.save()
+            messages.success(request, "New Project Created Successfully")
+            return HttpResponseRedirect(reverse('project'))
+    else:
+        form = ProjectForm()
+    context = {
+        'form': form,
+        'projects': projects
+    }
+    return render(request, 'admin_panel/Project/project.html', context)
+
+
+@login_required()
+def delete_project(request):
+    if request.method == "POST":
+        get_project = ProjectModel.objects.filter(pk=request.POST.get('id')).delete()
+        return JsonResponse({'status': 200})
+
+
+@login_required()
+def update_project_status(request):
+    if request.method == "POST":
+        get_project = ProjectModel.objects.get(pk=request.POST.get('id'))
+        get_project.project_status = request.POST.get('status')
+        get_project.save()
+        return JsonResponse({'status': 200})

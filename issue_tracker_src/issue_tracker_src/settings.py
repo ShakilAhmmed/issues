@@ -37,7 +37,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django.contrib.staticfiles',
     'login_panel.apps.LoginPanelConfig',
-    'backend.apps.BackendConfig'
+    'backend.apps.BackendConfig',
+    'debug_toolbar',
+    'rest_framework',
+    'tinymce'
 ]
 AUTH_USER_MODEL = 'backend.CustomUser'
 
@@ -49,6 +52,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    # ...
 ]
 
 ROOT_URLCONF = 'issue_tracker_src.urls'
