@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'backend.apps.BackendConfig',
     'debug_toolbar',
     'rest_framework',
-    'tinymce'
+    'tinymce',
+    'django_filters'
 ]
 AUTH_USER_MODEL = 'backend.CustomUser'
 

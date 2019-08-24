@@ -1,15 +1,19 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+
+from .filters import ProjectFilter
 from .serializers import CustomUserSerializer
 # Create your views here.
 from django.views import View
 
 from .models import CustomUser, ProjectModel
-from .forms import SignUpForm, ProjectForm
+from .forms import SignUpForm, ProjectForm, UserSearchForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 @login_required()
@@ -39,7 +43,6 @@ def backend(request):
 
 @login_required()
 def create_user(request):
-    users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -48,9 +51,20 @@ def create_user(request):
             return HttpResponseRedirect(reverse('create_user'))
     else:
         form = SignUpForm()
+        users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
+        search_form = UserSearchForm(request.GET)
+        if request.GET.get('username'):
+            users = users.filter(username__icontains=request.GET.get('username').strip())
+        if request.GET.get('access_level'):
+            users = users.filter(access_level=request.GET.get('access_level').strip())
+        users = Paginator(users, 2)  # Show 25 contacts per page
+        page = request.GET.get('page')
+        users = users.get_page(page)
+
     context = {
         'form': form,
-        'users': users
+        'users': users,
+        'search_form': search_form
     }
     return render(request, 'admin_panel/Rbac/create_user.html', context)
 
@@ -108,11 +122,7 @@ def delete_user(request):
 
 @login_required()
 def project(request):
-    projects = ProjectModel.objects.select_related().all().values('pk', 'project_title', 'project_status',
-                                                                  'created_by__username')
-    # bool(projects)
-    # print(projects.count())
-
+    # print(ProjectModel.paginate())
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -123,11 +133,22 @@ def project(request):
             return HttpResponseRedirect(reverse('project'))
     else:
         form = ProjectForm()
+        projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
+                                                     'created_by__username')
+        projects = ProjectFilter(request.GET, queryset=projects)
     context = {
         'form': form,
-        'projects': projects
+        'projects': projects,
     }
     return render(request, 'admin_panel/Project/project.html', context)
+
+
+# def search(request):
+#     projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
+#                                                  'created_by__username')[:100]
+#     user_filter = ProjectFilter(request.GET, queryset=projects)
+#     print(user_filter)
+#     return render(request, 'admin_panel/Project/project.html', {'filter': user_filter})
 
 
 @login_required()

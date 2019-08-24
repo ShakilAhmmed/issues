@@ -26,6 +26,22 @@ class SignUpForm(UserCreationForm):
         fields = ('username', 'first_name', 'last_name', 'email', 'access_level', 'password1', 'password2',)
 
 
+class UserSearchForm(forms.Form):
+    username = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    ACCESS_LEVEL = (
+        ('', 'All'),
+        ('Issue Creator', 'Issue Creator'),
+        ('Solver', 'Solver'),
+        ('Developer', 'Developer'),
+        ('Monitor', 'Monitor')
+    )
+    access_level = forms.CharField(required=False, widget=forms.Select(choices=ACCESS_LEVEL, attrs={
+        'class': 'form-control'
+    }))
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = ProjectModel

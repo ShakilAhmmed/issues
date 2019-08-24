@@ -18,3 +18,7 @@ class ProjectModel(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def paginate(self):
+        return "<h1>Hello</h1>"
