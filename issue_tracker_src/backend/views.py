@@ -1,3 +1,5 @@
+import sys
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -10,10 +12,14 @@ from .filters import ProjectFilter
 from .serializers import CustomUserSerializer
 # Create your views here.
 from django.views import View
-
+# from django.core.cache import cache
 from .models import CustomUser, ProjectModel
 from .forms import SignUpForm, ProjectForm, UserSearchForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+# from django.core.cache.backends.base import DEFAULT_TIMEOUT
+# from django.conf import settings
+#
+# CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 @login_required()
@@ -43,6 +49,8 @@ def backend(request):
 
 @login_required()
 def create_user(request):
+    users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
+    search_form = UserSearchForm(request.GET)
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -51,16 +59,20 @@ def create_user(request):
             return HttpResponseRedirect(reverse('create_user'))
     else:
         form = SignUpForm()
-        users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
-        search_form = UserSearchForm(request.GET)
+        # if 'user_data' in cache:
+        #     print("Cache")
+        #     users = cache.get('user_data')
+        # else:
+        #     print("Not Cache")
+        #     users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
+        #     cache.set('user_data', users, timeout=CACHE_TTL)
         if request.GET.get('username'):
             users = users.filter(username__icontains=request.GET.get('username').strip())
         if request.GET.get('access_level'):
             users = users.filter(access_level=request.GET.get('access_level').strip())
-        users = Paginator(users, 2)  # Show 25 contacts per page
-        page = request.GET.get('page')
-        users = users.get_page(page)
-
+    users = Paginator(users, 3)  # Show 3 contacts per page Also Works While Search
+    page = request.GET.get('page')
+    users = users.get_page(page)
     context = {
         'form': form,
         'users': users,
@@ -77,7 +89,7 @@ def edit_user(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "User Updated Successfully")
-            return HttpResponseRedirect(reverse('create_user', kwargs={'pk': pk}))
+            return HttpResponseRedirect(reverse('edit_user', kwargs={'pk': pk}))
     else:
         form = SignUpForm(instance=users)
     context = {
@@ -122,7 +134,6 @@ def delete_user(request):
 
 @login_required()
 def project(request):
-    # print(ProjectModel.paginate())
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -136,6 +147,10 @@ def project(request):
         projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
                                                      'created_by__username')
         projects = ProjectFilter(request.GET, queryset=projects)
+
+        # projects = Paginator(projects.qs, 2)
+        # page = request.GET.get('page')s
+        # projects = projects.get_page(page)
     context = {
         'form': form,
         'projects': projects,
