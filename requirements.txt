@@ -1,4 +1,6 @@
-Django==2.2.3
+django>=2.2.4
 django-widget-tweaks==1.4.5
 pytz==2019.1
 sqlparse==0.3.0
+django-filter
+djangorestframework
