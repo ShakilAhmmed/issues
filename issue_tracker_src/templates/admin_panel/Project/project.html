@@ -66,14 +66,14 @@
                                     <div class="col-sm-12">
                                         <div class="col-sm-4">
                                            <div class="form-group">
-                                                <label for="{{projects.form.project_title.id_for_label}}">{{projects.form.project_title.label}}</label>
-                                                {{projects.form.project_title}}
+                                                <label for="{{project_search_form.id_for_label}}">{{project_search_form.project_title.label}}</label>
+                                                {{project_search_form.project_title}}
                                             </div>
                                         </div>
                                          <div class="col-sm-4">
                                            <div class="form-group">
-                                                <label for="{{projects.form.project_status.id_for_label}}">{{projects.form.project_status.label}}</label>
-                                                {{projects.form.project_status}}
+                                                <label for="{{project_search_form.project_status.id_for_label}}">{{project_search_form.project_status.label}}</label>
+                                                {{project_search_form.project_status}}
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
@@ -99,7 +99,7 @@
 
 											<tbody>
 
-											{% for projects_data in projects.qs %}
+											{% for projects_data in projects %}
 												<tr>
 													<td>{{forloop.counter}}</td>
 													<td>{{projects_data.project_title}}</td>
@@ -135,23 +135,31 @@
                                     <ul class="pagination">
                                             <li class="step-links">
                                                 {% if projects.has_previous %}
-                                                    <a href="?page=1">&laquo; First</a>
-                                                    <a href="?page={{ projects.previous_page_number }}">Previous</a>
+                                                      {% if request.GET.project_title or request.GET.project_status %}
+                                                        <a href="{{request.get_full_path}}&page=1">&laquo; First</a>
+                                                        <a href="{{request.get_full_path}}&page={{ projects.previous_page_number }}">Previous</a>
+                                                        <a href="{% url 'project' %}">Back To All</a>
+                                                      {% else %}
+                                                         <a href="?page=1">&laquo; First</a>
+                                                         <a href="?page={{ projects.previous_page_number }}">Previous</a>
+                                                      {% endif%}
+
                                                 {% endif %}
                                             </li>
                                                 <li class="current">
-                                                    {% if request.GET.username or request.GET.access_level %}
-                                                        <a href="{% url 'create_user' %}">
-                                                            <button style="background-color: black;color: aliceblue">Back To All</button>
-                                                        </a>
-                                                    {% else %}
-                                                    <span style="background-color: black;color: aliceblue">Page {{ users.number }} of {{ users.paginator.num_pages }}</span>
-                                                    {% endif %}
+                                                    <span style="background-color: black;color: aliceblue">Page {{ projects.number }} of {{ projects.paginator.num_pages }}</span>
+
                                                 </li>
                                                 <li class="step-links">
-                                                {% if TransferRegisterReportController.has_next %}
-                                                    <a href="?page={{ projects.next_page_number }}">Next</a>
-                                                    <a href="?page={{ projects.paginator.num_pages }}">Last &raquo;</a>
+                                                {% if projects.has_next %}
+                                                    {% if request.GET.project_title or request.GET.project_status %}
+                                                         <a href="{{request.get_full_path}}&page={{ projects.next_page_number }}">Next</a>
+                                                         <a href="{{request.get_full_path}}&page={{ projects.paginator.num_pages }}">Last &raquo;</a>
+                                                      {% else %}
+                                                         <a href="?page={{ projects.next_page_number }}">Next</a>
+                                                         <a href="?page={{ projects.paginator.num_pages }}">Last &raquo;</a>
+                                                      {% endif%}
+
                                                 {% endif %}
                                              </li>
                                     </ul>

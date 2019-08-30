@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'rest_framework',
     'tinymce',
-    'django_filters'
+    'django_filters',
 ]
 AUTH_USER_MODEL = 'backend.CustomUser'
 
@@ -61,15 +61,15 @@ INTERNAL_IPS = [
     # ...
 ]
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': 'redis://127.0.0.1:6379/',
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 #STATICFILES_STORAGE =‘django.contrib.staticfiles.storage.CachedStaticFilesStorage’
 
 ROOT_URLCONF = 'issue_tracker_src.urls'

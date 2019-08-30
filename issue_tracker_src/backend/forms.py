@@ -42,6 +42,21 @@ class UserSearchForm(forms.Form):
     }))
 
 
+class ProjectSearchForm(forms.Form):
+    project_title = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    ACCESS_LEVEL = (
+        ('', 'All'),
+        ('Active', 'Active'),
+        ('Inactive', 'Inactive'),
+        ('Complete', 'Complete')
+    )
+    project_status = forms.CharField(required=False, widget=forms.Select(choices=ACCESS_LEVEL, attrs={
+        'class': 'form-control'
+    }))
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = ProjectModel

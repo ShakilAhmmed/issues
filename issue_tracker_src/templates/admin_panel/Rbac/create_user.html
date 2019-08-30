@@ -129,11 +129,11 @@
 													<td>{{users_data.email}}</td>
 													<td>{{users_data.access_level}}</td>
 													<td>
-													    <input type="checkbox"  class="active" get_active="{{users_data.pk}}" {% if users_data.is_active%} checked {% endif %}>
+													    <input type="checkbox"  class="active" get_active="{{users_data.id}}" {% if users_data.is_active%} checked {% endif %}>
 													</td>
 													<td>
-                                                            <button class="btn btn-danger delete_user" get_id="{{users_data.pk}}"><i class="fa fa-trash-o"></i></button>
-                                                            <a href="{% url 'edit_user'  users_data.pk %}">
+                                                            <button class="btn btn-danger delete_user" get_id="{{users_data.id}}"><i class="fa fa-trash-o"></i></button>
+                                                            <a href="{% url 'edit_user'  users_data.id %}">
                                                                 <button class="btn btn-primary"><i class="fa fa-pencil-square"></i></button>
                                                             </a>
                                                     </td>

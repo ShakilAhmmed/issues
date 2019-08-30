@@ -12,14 +12,16 @@ from .filters import ProjectFilter
 from .serializers import CustomUserSerializer
 # Create your views here.
 from django.views import View
-# from django.core.cache import cache
+from django.core.cache import cache
 from .models import CustomUser, ProjectModel
-from .forms import SignUpForm, ProjectForm, UserSearchForm
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-# from django.core.cache.backends.base import DEFAULT_TIMEOUT
-# from django.conf import settings
-#
-# CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
+from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm
+from django.core.paginator import Paginator
+
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
+from django.conf import settings
+from django.db.models import Sum
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 @login_required()
@@ -49,7 +51,7 @@ def backend(request):
 
 @login_required()
 def create_user(request):
-    users = CustomUser.objects.only('username', 'email', 'access_level', 'is_active').all()
+    users = CustomUser.objects.values()
     search_form = UserSearchForm(request.GET)
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -134,36 +136,33 @@ def delete_user(request):
 
 @login_required()
 def project(request):
+    project_search_form = ProjectSearchForm(request.GET)
+    projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
+                                                 'created_by__username')
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
             save_data = form.save(commit=False)
             save_data.created_by = request.user
             save_data.save()
+            cache.delete('projects')
             messages.success(request, "New Project Created Successfully")
             return HttpResponseRedirect(reverse('project'))
     else:
         form = ProjectForm()
-        projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
-                                                     'created_by__username')
-        projects = ProjectFilter(request.GET, queryset=projects)
-
-        # projects = Paginator(projects.qs, 2)
-        # page = request.GET.get('page')s
-        # projects = projects.get_page(page)
+        if request.GET.get('project_title'):
+            projects = projects.filter(project_title__icontains=request.GET.get('project_title').strip())
+        if request.GET.get('project_status'):
+            projects = projects.filter(project_status=request.GET.get('project_status').strip())
+    projects = Paginator(projects, 10)  # Show 3 contacts per page Also Works While Search
+    page = request.GET.get('page')
+    projects = projects.get_page(page)
     context = {
         'form': form,
         'projects': projects,
+        'project_search_form': project_search_form
     }
     return render(request, 'admin_panel/Project/project.html', context)
-
-
-# def search(request):
-#     projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
-#                                                  'created_by__username')[:100]
-#     user_filter = ProjectFilter(request.GET, queryset=projects)
-#     print(user_filter)
-#     return render(request, 'admin_panel/Project/project.html', {'filter': user_filter})
 
 
 @login_required()
