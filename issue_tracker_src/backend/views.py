@@ -154,13 +154,15 @@ def project(request):
             projects = projects.filter(project_title__icontains=request.GET.get('project_title').strip())
         if request.GET.get('project_status'):
             projects = projects.filter(project_status=request.GET.get('project_status').strip())
+
     projects = Paginator(projects, 10)  # Show 3 contacts per page Also Works While Search
     page = request.GET.get('page')
     projects = projects.get_page(page)
     context = {
         'form': form,
         'projects': projects,
-        'project_search_form': project_search_form
+        'project_search_form': project_search_form,
+
     }
     return render(request, 'admin_panel/Project/project.html', context)
 

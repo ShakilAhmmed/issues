@@ -135,15 +135,9 @@
                                     <ul class="pagination">
                                             <li class="step-links">
                                                 {% if projects.has_previous %}
-                                                      {% if request.GET.project_title or request.GET.project_status %}
-                                                        <a href="{{request.get_full_path}}&page=1">&laquo; First</a>
-                                                        <a href="{{request.get_full_path}}&page={{ projects.previous_page_number }}">Previous</a>
+                                                        <a href="?page=1{{pagination_url}}">&laquo; First</a>
+                                                        <a href="?page={{ projects.previous_page_number }}{{pagination_url}}">Previous</a>
                                                         <a href="{% url 'project' %}">Back To All</a>
-                                                      {% else %}
-                                                         <a href="?page=1">&laquo; First</a>
-                                                         <a href="?page={{ projects.previous_page_number }}">Previous</a>
-                                                      {% endif%}
-
                                                 {% endif %}
                                             </li>
                                                 <li class="current">
@@ -152,13 +146,8 @@
                                                 </li>
                                                 <li class="step-links">
                                                 {% if projects.has_next %}
-                                                    {% if request.GET.project_title or request.GET.project_status %}
-                                                         <a href="{{request.get_full_path}}&page={{ projects.next_page_number }}">Next</a>
-                                                         <a href="{{request.get_full_path}}&page={{ projects.paginator.num_pages }}">Last &raquo;</a>
-                                                      {% else %}
-                                                         <a href="?page={{ projects.next_page_number }}">Next</a>
-                                                         <a href="?page={{ projects.paginator.num_pages }}">Last &raquo;</a>
-                                                      {% endif%}
+                                                         <a href="?page={{ projects.next_page_number }}{{pagination_url}}">Next</a>
+                                                         <a href="?page={{ projects.paginator.num_pages }}{{pagination_url}}">Last &raquo;</a>
 
                                                 {% endif %}
                                              </li>
