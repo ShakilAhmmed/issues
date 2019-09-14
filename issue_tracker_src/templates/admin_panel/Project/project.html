@@ -66,6 +66,7 @@
                                     <div class="col-sm-12">
                                         <div class="col-sm-4">
                                            <div class="form-group">
+<!--                                               <input type="hidden" name="page" value="{{request.GET.page}}">-->
                                                 <label for="{{project_search_form.id_for_label}}">{{project_search_form.project_title.label}}</label>
                                                 {{project_search_form.project_title}}
                                             </div>
@@ -74,6 +75,7 @@
                                            <div class="form-group">
                                                 <label for="{{project_search_form.project_status.id_for_label}}">{{project_search_form.project_status.label}}</label>
                                                 {{project_search_form.project_status}}
+
                                             </div>
                                         </div>
                                         <div class="col-sm-4">
@@ -118,7 +120,7 @@
 													<td>
                                                             <button class="btn btn-danger delete_project" get_id="{{projects_data.pk}}"><i class="fa fa-trash-o"></i></button>
 
-                                                            <a href="">
+                                                            <a href="{% url 'edit_project' projects_data.pk %}">
                                                                 <button class="btn btn-primary"><i class="fa fa-pencil-square"></i></button>
                                                             </a>
 

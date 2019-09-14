@@ -3,8 +3,8 @@ import sys
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.db.models import Sum
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.db.models import Sum, QuerySet
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
@@ -137,8 +137,10 @@ def delete_user(request):
 @login_required()
 def project(request):
     project_search_form = ProjectSearchForm(request.GET)
-    projects = ProjectModel.objects.all().values('pk', 'project_title', 'project_status',
-                                                 'created_by__username')
+    projects = ProjectModel.objects.values('pk', 'project_title', 'project_status', 'created_by__username')
+    # print(projects)
+    # active_data = QuerySet(projects).filter(project_status='Active')
+    # print(active_data)
     if request.method == "POST":
         form = ProjectForm(request.POST)
         if form.is_valid():
@@ -181,3 +183,20 @@ def update_project_status(request):
         get_project.project_status = request.POST.get('status')
         get_project.save()
         return JsonResponse({'status': 200})
+
+
+@login_required()
+def edit_project(request, pk):
+    project_data = get_object_or_404(ProjectModel, pk=pk)
+    if request.method == "POST":
+        form = ProjectForm(request.POST, instance=project_data)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Project Updated Successfully")
+            return HttpResponseRedirect(reverse('project'))
+    else:
+        form = ProjectForm(instance=project_data)
+    context = {
+        'form': form
+    }
+    return render(request, 'admin_panel/Project/edit_project.html', context)
