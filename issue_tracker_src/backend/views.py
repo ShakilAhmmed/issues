@@ -14,7 +14,7 @@ from .serializers import CustomUserSerializer
 from django.views import View
 from django.core.cache import cache
 from .models import CustomUser, ProjectModel
-from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm
+from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm, TeamForm
 from django.core.paginator import Paginator
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
@@ -200,3 +200,13 @@ def edit_project(request, pk):
         'form': form
     }
     return render(request, 'admin_panel/Project/edit_project.html', context)
+
+
+@login_required()
+def create_team(request):
+    template_name = 'admin_panel/Team/create_team.html'
+    form = TeamForm()
+    context = {
+        'form': form
+    }
+    return render(request, template_name, context)

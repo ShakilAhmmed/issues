@@ -18,6 +18,9 @@ class ProjectModel(models.Model):
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.project_title
     #
     # class Meta:
     #     ordering = ['-id']
@@ -27,5 +30,18 @@ class ProjectModel(models.Model):
         return "<h1>Hello</h1>"
 
 
-class Meta:
-    list_on_page = 6
+class TeamModel(models.Model):
+    team_name = models.CharField(unique=True, db_index=True, max_length=50, validators=[check_project_name])
+    description = HTMLField()
+    project = models.ForeignKey(ProjectModel, on_delete=models.CASCADE, related_name='project')
+    team_leader = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='team_leader')
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class TeamMemberModel(models.Model):
+    team = models.ForeignKey(TeamModel, on_delete=models.CASCADE, related_name='team')
+    member_name = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='member_name')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
