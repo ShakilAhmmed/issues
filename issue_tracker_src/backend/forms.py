@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from backend.models import CustomUser, ProjectModel
+from backend.models import CustomUser, ProjectModel, TeamModel, TeamMemberModel
 from tinymce.widgets import TinyMCE
 
 
@@ -68,3 +68,15 @@ class ProjectForm(forms.ModelForm):
             'project_status': forms.Select(choices=CHOICES, attrs={'class': 'form-control'}),
             'project_description': TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'})
         }
+
+
+class TeamForm(forms.Form):
+    team_name = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    project_choices = ProjectModel.objects.filter(project_status='Active').values_list('id', 'project_title')
+    team_leader_choices = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor']).values_list('id',
+                                                                                                            'email')
+    description = forms.CharField(widget=TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'}))
+    project = forms.CharField(widget=forms.Select(choices=project_choices, attrs={'class': 'form-control'}))
+    team_leader = forms.CharField(widget=forms.Select(choices=team_leader_choices, attrs={'class': 'form-control'}))

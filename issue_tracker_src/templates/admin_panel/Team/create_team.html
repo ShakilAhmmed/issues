@@ -1,0 +1,50 @@
+{% extends 'admin_panel/index.html' %}
+{% block title %} Home {% endblock title%}
+{% block main_content %}
+
+<!-- Button trigger modal -->
+<!-- Modal -->
+
+<form role="form" action="" method="POST">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="col-md-12">
+            <div class="panel panel-primary ">
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label for="{{form.team_name.id_for_label}}">{{form.team_name.label}}</label>
+                        {{form.team_name}}
+                        <span class="text-danger">{{form.team_name.errors}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{form.description.id_for_label}}">{{form.description.label}}</label>
+                        {{form.description}}
+                        <span class="text-danger">{{form.description.errors}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{form.project.id_for_label}}">{{form.project.label}}</label>
+                        {{form.project}}
+                        <span class="text-danger">{{form.project.errors}}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="{{form.team_leader.id_for_label}}">{{form.team_leader.label}}</label>
+                        {{form.team_leader}}
+                        <span class="text-danger">{{form.team_leader.errors}}</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="hidden" name="created_by" value="{{request.user.pk}}">
+                    </div>
+
+
+                </div><!-- panel-body -->
+            </div>
+            <!-- panel -->
+        </div>
+    </div>
+</form>
+
+
+{% endblock main_content %}
