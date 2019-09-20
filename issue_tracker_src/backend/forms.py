@@ -70,13 +70,26 @@ class ProjectForm(forms.ModelForm):
         }
 
 
-class TeamForm(forms.Form):
-    team_name = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control'
-    }))
-    project_choices = ProjectModel.objects.filter(project_status='Active').values_list('id', 'project_title')
-    team_leader_choices = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor']).values_list('id',
-                                                                                                            'email')
-    description = forms.CharField(widget=TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'}))
-    project = forms.CharField(widget=forms.Select(choices=project_choices, attrs={'class': 'form-control'}))
-    team_leader = forms.CharField(widget=forms.Select(choices=team_leader_choices, attrs={'class': 'form-control'}))
+class TeamForm(forms.ModelForm):
+    # team_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+    # description = TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'})
+    # project = forms.ModelChoiceField(queryset=ProjectModel.objects.filter(project_status='Active'),
+    #                                  widget=forms.Select(attrs={'class': 'form-control'}))
+    # team_leader = forms.ModelChoiceField(
+    #     queryset=CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor']),
+    #     widget=forms.Select(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = TeamModel
+        fields = ['team_name', 'description', 'project', 'team_leader']
+        widgets = {
+            'team_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'}),
+            'project': forms.Select(attrs={'class': 'form-control'}),
+            'team_leader': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TeamForm, self).__init__(*args, **kwargs)
+        self.fields['project'].queryset = ProjectModel.objects.filter(project_status='Active')
+        self.fields['team_leader'].queryset = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])

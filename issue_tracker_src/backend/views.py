@@ -205,7 +205,19 @@ def edit_project(request, pk):
 @login_required()
 def create_team(request):
     template_name = 'admin_panel/Team/create_team.html'
-    form = TeamForm()
+    if request.method == "POST":
+        form = TeamForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
+            # print(project)
+            # form.project = project.pk
+            #form.save()
+            messages.success(request, "Team Created Successfully")
+            return HttpResponseRedirect(reverse('create_team'))
+    else:
+        form = TeamForm()
+        #form.fields["project"].queryset = ProjectModel.objects.filter(project_status='Active')
     context = {
         'form': form
     }
