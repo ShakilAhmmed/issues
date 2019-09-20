@@ -21,6 +21,7 @@ class ProjectModel(models.Model):
 
     def __str__(self):
         return self.project_title
+
     #
     # class Meta:
     #     ordering = ['-id']
