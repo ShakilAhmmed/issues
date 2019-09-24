@@ -78,7 +78,7 @@ class TeamForm(forms.ModelForm):
                                      empty_label='Please Select A Project')
     team_leader = forms.ModelChoiceField(
         queryset=CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor']),
-        widget=forms.Select(attrs={'class': 'form-control'}), empty_label='Please Select A Team Leader')
+        widget=forms.Select(attrs={'class': 'form-control members'}), empty_label='Please Select A Team Leader')
 
     class Meta:
         model = TeamModel

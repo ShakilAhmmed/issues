@@ -209,16 +209,14 @@ def create_team(request):
         form = TeamForm(request.POST)
         if form.is_valid():
             form.save()
-            # project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
-            # print(project)
-            # form.project = project.pk
-            #form.save()
             messages.success(request, "Team Created Successfully")
             return HttpResponseRedirect(reverse('create_team'))
     else:
         form = TeamForm()
-        #form.fields["project"].queryset = ProjectModel.objects.filter(project_status='Active')
+
+    team_leader = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
     context = {
-        'form': form
+        'form': form,
+        'team_leader': team_leader
     }
     return render(request, template_name, context)

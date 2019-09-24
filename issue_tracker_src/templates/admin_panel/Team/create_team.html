@@ -29,6 +29,29 @@
                         {{form.project}}
                         <span class="text-danger">{{form.project.errors}}</span>
                     </div>
+
+                    <!-- <div class="form-group">
+                        <label for="project">Project</label>
+                        <select name="project" class="form-control">
+                            <option>--Select Project--</option>
+                            {% for project_data in project%}
+                                <option value="{{project_data.pk}}">{{project_data.project_title}}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="text-danger">{{form.project.errors}}</span>
+                     </div>
+
+                     <div class="form-group">
+                        <label for="project">Team Leader</label>
+                        <select name="team_leader" class="form-control">
+                            <option>--Select Leader--</option>
+                            {% for team_leader_data in team_leader%}
+                                <option value="{{team_leader_data.pk}}">{{team_leader_data.email}}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="text-danger">{{form.project.errors}}</span>
+                     </div> -->
+
                     <div class="form-group">
                         <label for="{{form.team_leader.id_for_label}}">{{form.team_leader.label}}</label>
                         {{form.team_leader}}
@@ -37,7 +60,34 @@
                     <div class="form-group">
                         <input type="hidden" name="created_by" value="{{request.user.pk}}">
                     </div>
-                    <div class="form-group">
+
+                    <div style="border: 1px;
+    background: lavender;
+    padding: 1px;
+    text-align: center;
+    color: black;
+    font-size: 15px;">
+                        <p style="margin-top: 5px;">Team Members</p>
+                    </div>
+                    <div class="input_fields_wrap form-group" style="margin-top: 10px;">
+                        <div class="row">
+                            <div class="col-sm-4" style="width: 285px;margin-left: 14px">
+                                <select class="form-control members">
+                                    <option>--Select A Member --</option>
+                                    {% for team_leader_data in team_leader %}
+                                    <option value="{{team_leader_data.pk}}">{{team_leader_data.username}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="button" style="margin-left: -16px;"
+                                        class="add_field_button btn btn-success"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+
+                    <div class="form-group" style="margin-top: 5px;margin-left: 12px;">
                         <input type="submit" class="btn btn-success" value="Create Team">
                     </div>
 
@@ -45,9 +95,70 @@
                 </div><!-- panel-body -->
             </div>
             <!-- panel -->
+
         </div>
     </div>
 </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var max_fields = 10; //maximum input boxes allowed
+        var wrapper = $(".input_fields_wrap"); //Fields wrapper
+        var add_button = $(".add_field_button"); //Add button ID
+
+        var x = 1; //initlal text box count
+
+        $(add_button).click(function (e) { //on add input button click
+            e.preventDefault();
+            if (x < max_fields) { //max input box allowed
+                x++; //text box increment
+                $(wrapper).append(`
+                    <div>
+                        <table>
+                            <tr>
+                                <td>
+                                  <select class="form-control members" style="margin-left: 14px;width: 255px;">
+                                        <option>--Select A Member --</option>
+                                        {% for team_leader_data in team_leader %}
+                                        <option value="{{team_leader_data.pk}}">{{team_leader_data.username}}</option>
+                                        {% endfor %}
+                                  </select>
+                                </td>
+                            </tr>
+                        <button class='btn btn-danger remove_field' style='width: 40px;margin-left: 280px;margin-bottom: -50px;'><i class="fa fa-trash"></i></button>
+                        </table>
+                    </div>`); //add input box
+            }
+            else
+            {
+                swal("Sorry!", "Only Ten Fields Are Allowed!", "error");
+            }
+        });
+
+        $(wrapper).on("click", ".remove_field", function (e) { //user click on remove text
+            e.preventDefault();
+            $(this).parent('div').remove();
+            x--;
+        })
+    });
+
+    //Check Member Exists Or Not
+    var exists_members=[];
+    $(document).on("change",".members",function () {
+         var members=$(this).val();
+         if(exists_members.indexOf(members) != -1)
+         {
+             swal("Sorry!", "Member Already Selected!", "error");
+             $(this).val('');
+         }
+         else {
+             exists_members.push(members);
+         }
+
+        console.log(exists_members);
+    });
+
+</script>
 
 
 {% endblock main_content %}
