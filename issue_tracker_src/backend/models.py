@@ -34,8 +34,8 @@ class ProjectModel(models.Model):
 class TeamModel(models.Model):
     team_name = models.CharField(unique=True, db_index=True, max_length=50, validators=[check_project_name])
     description = HTMLField()
-    project = models.ForeignKey(ProjectModel, on_delete=models.CASCADE, related_name='project')
-    team_leader = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='team_leader')
+    project = models.OneToOneField(ProjectModel, on_delete=models.CASCADE, related_name='project', unique=True)
+    team_leader = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='team_leader', unique=True)
     created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='created_by')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -13,10 +13,10 @@ from .serializers import CustomUserSerializer
 # Create your views here.
 from django.views import View
 from django.core.cache import cache
-from .models import CustomUser, ProjectModel
+from .models import CustomUser, ProjectModel, TeamModel, TeamMemberModel
 from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm, TeamForm
 from django.core.paginator import Paginator
-
+from django.core import serializers
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.conf import settings
 from django.db.models import Sum
@@ -207,18 +207,31 @@ def create_team(request):
     template_name = 'admin_panel/Team/create_team.html'
     if request.method == "POST":
         form = TeamForm(request.POST)
+        members = request.POST.getlist("member_name[]")
         if form.is_valid():
-            form.save()
-            # project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
-            # print(project)
-            # form.project = project.pk
-            #form.save()
-            messages.success(request, "Team Created Successfully")
+            if '' in members:
+                messages.error(request, 'Please Select Team Members')
+            else:
+                team_object = TeamModel()
+                team_object.team_name = form.cleaned_data['team_name']
+                team_object.description = form.cleaned_data['description']
+                team_object.project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
+                team_object.team_leader = get_object_or_404(CustomUser, pk=request.POST.get('team_leader'))
+                team_object.created_by = get_object_or_404(CustomUser, pk=request.POST.get('created_by'))
+                team_object.save()
+                for data in members:
+                    if data != '':
+                        team_members = TeamMemberModel()
+                        team_members.team = team_object
+                        team_members.member_name = get_object_or_404(CustomUser, pk=data)
+                        team_members.save()
+                messages.success(request, "Team Created Successfully")
             return HttpResponseRedirect(reverse('create_team'))
     else:
         form = TeamForm()
-        #form.fields["project"].queryset = ProjectModel.objects.filter(project_status='Active')
+    team_leader = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
     context = {
-        'form': form
+        'form': form,
+        'team_leader': team_leader,
     }
     return render(request, template_name, context)
