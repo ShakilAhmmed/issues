@@ -24,39 +24,19 @@
                         <span class="text-danger">{{form.description.errors}}</span>
                     </div>
 
-                    <div class="form-group">
+                      <div class="form-group">
                         <label for="{{form.project.id_for_label}}">{{form.project.label}}</label>
                         {{form.project}}
                         <span class="text-danger">{{form.project.errors}}</span>
                     </div>
 
-                    <!-- <div class="form-group">
-                        <label for="project">Project</label>
-                        <select name="project" class="form-control">
-                            <option>--Select Project--</option>
-                            {% for project_data in project%}
-                                <option value="{{project_data.pk}}">{{project_data.project_title}}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="text-danger">{{form.project.errors}}</span>
-                     </div>
 
-                     <div class="form-group">
-                        <label for="project">Team Leader</label>
-                        <select name="team_leader" class="form-control">
-                            <option>--Select Leader--</option>
-                            {% for team_leader_data in team_leader%}
-                                <option value="{{team_leader_data.pk}}">{{team_leader_data.email}}</option>
-                            {% endfor %}
-                        </select>
-                        <span class="text-danger">{{form.project.errors}}</span>
-                     </div> -->
-
-                    <div class="form-group">
+                      <div class="form-group">
                         <label for="{{form.team_leader.id_for_label}}">{{form.team_leader.label}}</label>
                         {{form.team_leader}}
                         <span class="text-danger">{{form.team_leader.errors}}</span>
                     </div>
+
                     <div class="form-group">
                         <input type="hidden" name="created_by" value="{{request.user.pk}}">
                     </div>
@@ -72,10 +52,10 @@
                     <div class="input_fields_wrap form-group" style="margin-top: 10px;">
                         <div class="row">
                             <div class="col-sm-4" style="width: 285px;margin-left: 14px">
-                                <select class="form-control members">
-                                    <option>--Select A Member --</option>
+                                <select class="form-control members" name="member_name[]">
+                                    <option value>--Select A Member --</option>
                                     {% for team_leader_data in team_leader %}
-                                    <option value="{{team_leader_data.pk}}">{{team_leader_data.username}}</option>
+                                    <option value="{{team_leader_data.pk}}">{{team_leader_data.email}}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -117,10 +97,10 @@
                         <table>
                             <tr>
                                 <td>
-                                  <select class="form-control members" style="margin-left: 14px;width: 255px;">
+                                  <select class="form-control members" name="member_name[]" style="margin-left: 14px;width: 255px;">
                                         <option>--Select A Member --</option>
                                         {% for team_leader_data in team_leader %}
-                                        <option value="{{team_leader_data.pk}}">{{team_leader_data.username}}</option>
+                                        <option value="{{team_leader_data.pk}}">{{team_leader_data.email}}</option>
                                         {% endfor %}
                                   </select>
                                 </td>
