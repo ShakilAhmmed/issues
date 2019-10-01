@@ -1,0 +1,99 @@
+{% extends 'admin_panel/index.html' %}
+{% block title %} Team List {% endblock title%}
+{% block main_content %}
+
+<div class="col-md-12 m-t-5">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Team List</h3>
+							</div>
+							<div class="panel-body">
+                                <form method="get">
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-4">
+                                           <div class="form-group">
+<!--                                               <input type="hidden" name="page" value="{{request.GET.page}}">-->
+                                            </div>
+                                        </div>
+                                         <div class="col-sm-4">
+                                           <div class="form-group">
+
+
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4">
+                                           <div class="form-group">
+
+                                                <button class="btn btn-success" style="margin-top: 8%" type="submit">Search</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+								<div class="row">
+									<div class="col-md-12 col-sm-12 col-xs-12">
+										<table  class="table table-striped table-bordered">
+											<thead>
+												<tr>
+													<th>Sl No</th>
+													<th>Team Name</th>
+													<th>Project Name</th>
+													<th>Leader Name</th>
+													<th>Action</th>
+												</tr>
+											</thead>
+
+											<tbody>
+
+											{% for team_list_data_value in team_list_data %}
+												<tr>
+													<td>{{forloop.counter}}</td>
+													<td>{{team_list_data_value.team_name}}</td>
+													<td>{{team_list_data_value.project.project_title}}</td>
+													<td>{{team_list_data_value.team_leader.email}}</td>
+													<td>
+                                                            <button class="btn btn-danger delete_project" get_id="{{team_list_data_value.pk}}"><i class="fa fa-trash-o"></i></button>
+
+                                                            <a href="{% url 'edit_project' team_list_data_value.pk %}">
+                                                                <button class="btn btn-primary"><i class="fa fa-pencil-square"></i></button>
+                                                            </a>
+
+
+                                                    </td>
+												</tr>
+                                            {% empty %}
+                                                <tr>
+                                                    <td colspan="5"><span style="text-align: center;color: red">No Data Found</span></td>
+                                                </tr>
+                                            {% endfor %}
+											</tbody>
+										</table>
+                                    <ul class="pagination">
+                                            <li class="step-links">
+                                                {% if team_list_data.has_previous %}
+                                                        <a href="?page=1{{pagination_url}}">&laquo; First</a>
+                                                        <a href="?page={{ team_list_data.previous_page_number }}{{pagination_url}}">Previous</a>
+                                                        <a href="{% url 'project' %}">Back To All</a>
+                                                {% endif %}
+                                            </li>
+                                                <li class="current">
+                                                    <span style="background-color: black;color: aliceblue">Page {{ projects.number }} of {{ projects.paginator.num_pages }}</span>
+
+                                                </li>
+                                                <li class="step-links">
+                                                {% if projects.has_next %}
+                                                         <a href="?page={{ team_list_data.next_page_number }}{{pagination_url}}">Next</a>
+                                                         <a href="?page={{ team_list_data.paginator.num_pages }}{{pagination_url}}">Last &raquo;</a>
+
+                                                {% endif %}
+                                             </li>
+                                    </ul>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+
+{% endblock main_content %}
