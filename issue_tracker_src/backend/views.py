@@ -235,3 +235,16 @@ def create_team(request):
         'team_leader': team_leader,
     }
     return render(request, template_name, context)
+
+
+@login_required
+def team_list(request):
+    template_name = 'admin_panel/Team/team_list.html'
+    team_list_data = TeamModel.objects.select_related().all()
+    team_list_data = Paginator(team_list_data, 10)  # Show 3 contacts per page Also Works While Search
+    page = request.GET.get('page')
+    team_list_data = team_list_data.get_page(page)
+    context = {
+        'team_list_data': team_list_data,
+    }
+    return render(request, template_name, context)

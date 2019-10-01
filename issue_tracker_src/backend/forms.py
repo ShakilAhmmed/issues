@@ -111,12 +111,34 @@ class TeamForm(forms.Form):
         choices.append((value.id, value.email))
     team_leader = forms.CharField(widget=forms.Select(choices=choices, attrs={'class': 'form-control members'}))
 
-    def clean_project(self):
-        existing_data = TeamModel.objects.filter(project=self.cleaned_data['project'])
-        if existing_data.exists():
-            raise ValidationError("Project Already Selected For Another Team")
+    # Whole Form Field Validation
+    def clean(self):
+        cleaned_data = super(TeamForm, self).clean()
+        existing_team_data = TeamModel.objects.filter(team_name=cleaned_data.get('team_name'))
 
-    def clean_team_leader(self):
-        existing_data = TeamModel.objects.filter(team_leader=self.cleaned_data['team_leader'])
-        if existing_data.exists():
-            raise ValidationError("Project Already Selected For Another Team")
+        if existing_team_data.exists():
+            raise forms.ValidationError("Team Name Exists")
+
+        existing_project_data = TeamModel.objects.filter(project=self.cleaned_data.get('project'))
+        if existing_project_data.exists():
+            raise forms.ValidationError("Project Already Selected For Another Team")
+
+        existing_leader_data = TeamModel.objects.filter(team_leader=self.cleaned_data.get('team_leader'))
+        if existing_leader_data.exists():
+            raise forms.ValidationError("Member Selected For Another Team")
+
+    # Single Field Validation
+    # def clean_team_name(self):
+    #     existing_data = TeamModel.objects.filter(project=self.cleaned_data['team_name'])
+    #     if existing_data.exists():
+    #         raise ValidationError("Team Name Exists")
+    #
+    # def clean_project(self):
+    #     existing_data = TeamModel.objects.filter(project=self.cleaned_data['project'])
+    #     if existing_data.exists():
+    #         raise ValidationError("Project Already Selected For Another Team")
+    #
+    # def clean_team_leader(self):
+    #     existing_data = TeamModel.objects.filter(team_leader=self.cleaned_data['team_leader'])
+    #     if existing_data.exists():
+    #         raise ValidationError("Member Selected For Another Team")

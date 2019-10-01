@@ -4,6 +4,13 @@
 
 <!-- Button trigger modal -->
 <!-- Modal -->
+{% if form.non_field_errors %}
+  <div class="alert alert-danger" style="margin: 1% 3% 0% 3%;">
+    {% for err in form.non_field_errors %}
+      <p class="text-danger">{{ err }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
 
 <form role="form" action="" method="POST">
     {% csrf_token %}
