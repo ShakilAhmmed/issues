@@ -7,9 +7,9 @@ from django.db.models import Sum, QuerySet
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, QueryDict
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-
+from django.db import transaction
 from .filters import ProjectFilter
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, TeamSerializer
 # Create your views here.
 from django.views import View
 from django.core.cache import cache
@@ -20,6 +20,7 @@ from django.core import serializers
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.conf import settings
 from django.db.models import Sum
+from django.core import serializers
 
 CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
@@ -212,21 +213,22 @@ def create_team(request):
             if '' in members:
                 messages.error(request, 'Please Select Team Members')
             else:
-                team_object = TeamModel()
-                team_object.team_name = form.cleaned_data['team_name']
-                team_object.description = form.cleaned_data['description']
-                team_object.project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
-                team_object.team_leader = get_object_or_404(CustomUser, pk=request.POST.get('team_leader'))
-                team_object.created_by = get_object_or_404(CustomUser, pk=request.POST.get('created_by'))
-                team_object.save()
-                for data in members:
-                    if data != '':
-                        team_members = TeamMemberModel()
-                        team_members.team = team_object
-                        team_members.member_name = get_object_or_404(CustomUser, pk=data)
-                        team_members.save()
+                with transaction.atomic():
+                    team_object = TeamModel()
+                    team_object.team_name = form.cleaned_data['team_name']
+                    team_object.description = form.cleaned_data['description']
+                    team_object.project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
+                    team_object.team_leader = get_object_or_404(CustomUser, pk=request.POST.get('team_leader'))
+                    team_object.created_by = get_object_or_404(CustomUser, pk=request.POST.get('created_by'))
+                    team_object.save()
+                    for data in members:
+                        if data != '':
+                            team_members = TeamMemberModel()
+                            team_members.team = team_object
+                            team_members.member_name = get_object_or_404(CustomUser, pk=data)
+                            team_members.save()
                 messages.success(request, "Team Created Successfully")
-            return HttpResponseRedirect(reverse('create_team'))
+            return HttpResponseRedirect(reverse('team_list'))
     else:
         form = TeamForm()
     team_leader = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
@@ -248,3 +250,41 @@ def team_list(request):
         'team_list_data': team_list_data,
     }
     return render(request, template_name, context)
+
+
+@login_required
+def delete_team(request):
+    if request.method == "POST":
+        get_project = TeamModel.objects.filter(pk=request.POST.get('id')).delete()
+        return JsonResponse({'status': 200})
+
+
+@login_required
+def view_team(request):
+    if request.method == "POST":
+        get_team = get_object_or_404(TeamModel, pk=request.POST.get('id'))
+        team_members = TeamMemberModel.objects.filter(team=get_team.id)
+        table = ""
+        table += "<div class=\"row\">"
+        table += "<div class=\"col-sm-6\">"
+        table += "<label>Team Name:</label>"
+        table += "<p>" + get_team.team_name + "</p>"
+        table += "</div>"
+        table += "<div class=\"col-sm-6\">"
+        table += "<label> TeamLeader: </label>"
+        table += "<p>" + get_team.team_leader.username + "(" + get_team.team_leader.email + ")</p>"
+        table += "</div>"
+        table += "<hr>"
+        table += "<table class =\"table table-bordered\">"
+        table += "<tr>"
+        table += "<th> Member Name </th>"
+        table += "<th> Member Access Level </th>"
+        table += "</tr>"
+        for data in team_members:
+            table += "<tr>"
+            table += "<td>" + data.member_name.username + "(" + data.member_name.email + ")</td>"
+            table += "<td>" + data.member_name.access_level + "</td>"
+            table += "</tr>"
+        table += "</table>"
+        table += "</div>"
+        return HttpResponse(table)
