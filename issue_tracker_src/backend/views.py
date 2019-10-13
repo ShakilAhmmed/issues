@@ -8,13 +8,14 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse, QueryD
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.db import transaction
+
 from .filters import ProjectFilter
 from .serializers import CustomUserSerializer, TeamSerializer
 # Create your views here.
 from django.views import View
 from django.core.cache import cache
 from .models import CustomUser, ProjectModel, TeamModel, TeamMemberModel
-from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm, TeamForm
+from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm, TeamForm, TeamModelForm
 from django.core.paginator import Paginator
 from django.core import serializers
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
@@ -207,20 +208,21 @@ def edit_project(request, pk):
 def create_team(request):
     template_name = 'admin_panel/Team/create_team.html'
     if request.method == "POST":
-        form = TeamForm(request.POST)
+        form = TeamModelForm(request.POST)
         members = request.POST.getlist("member_name[]")
         if form.is_valid():
             if '' in members:
                 messages.error(request, 'Please Select Team Members')
             else:
                 with transaction.atomic():
-                    team_object = TeamModel()
-                    team_object.team_name = form.cleaned_data['team_name']
-                    team_object.description = form.cleaned_data['description']
-                    team_object.project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
-                    team_object.team_leader = get_object_or_404(CustomUser, pk=request.POST.get('team_leader'))
-                    team_object.created_by = get_object_or_404(CustomUser, pk=request.POST.get('created_by'))
-                    team_object.save()
+                    team_object = form.save()
+                    # team_object = TeamModel()
+                    # team_object.team_name = form.cleaned_data['team_name']
+                    # team_object.description = form.cleaned_data['description']
+                    # team_object.project = get_object_or_404(ProjectModel, pk=request.POST.get('project'))
+                    # team_object.team_leader = get_object_or_404(CustomUser, pk=request.POST.get('team_leader'))
+                    # team_object.created_by = get_object_or_404(CustomUser, pk=request.POST.get('created_by'))
+                    # team_object.save()
                     for data in members:
                         if data != '':
                             team_members = TeamMemberModel()
@@ -230,7 +232,7 @@ def create_team(request):
                 messages.success(request, "Team Created Successfully")
             return HttpResponseRedirect(reverse('team_list'))
     else:
-        form = TeamForm()
+        form = TeamModelForm()
     team_leader = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
     context = {
         'form': form,
@@ -257,6 +259,39 @@ def delete_team(request):
     if request.method == "POST":
         get_project = TeamModel.objects.filter(pk=request.POST.get('id')).delete()
         return JsonResponse({'status': 200})
+
+
+@login_required
+def edit_team(request, pk):
+    template_name = 'admin_panel/Team/edit_team.html'
+    data = get_object_or_404(TeamModel, pk=pk)
+    if request.method == "POST":
+        form = TeamModelForm(request.POST, instance=data)
+        members = request.POST.getlist("member_name[]")
+        print(members)
+        if form.is_valid():
+            if '' in members:
+                messages.error(request, 'Please Select Team Members')
+            else:
+                with transaction.atomic():
+                    TeamMemberModel.objects.filter(team=pk).delete()
+                    team_object = form.save()
+                    for data in members:
+                        if data != '':
+                            team_members = TeamMemberModel()
+                            team_members.team = team_object
+                            team_members.member_name = get_object_or_404(CustomUser, pk=data)
+                            team_members.save()
+                messages.success(request, "Team Updated Successfully")
+            return HttpResponseRedirect(reverse('team_list'))
+    else:
+        form = TeamModelForm(instance=data)
+    context = {
+        'form': form,
+        'get_value': data,
+        'team_leader': CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
+    }
+    return render(request, template_name, context)
 
 
 @login_required

@@ -95,6 +95,21 @@ class ProjectForm(forms.ModelForm):
 #     super(TeamForm, self).__init__(*args, **kwargs)
 #     self.fields['project'].queryset = ProjectModel.objects.filter(project_status='Active')
 #     self.fields['team_leader'].queryset = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
+class TeamModelForm(forms.ModelForm):
+    class Meta:
+        model = TeamModel
+        fields = "__all__"
+        project_data = ProjectModel.objects.filter(project_status='Active')
+        choices = [(value.id, value.project_title) for value in project_data]
+        team_data = CustomUser.objects.exclude(access_level__in=['Issue Creator', 'Monitor'])
+        team_choices = [(value.id, value.email) for value in team_data]
+        widgets = {
+            'team_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': TinyMCE(attrs={'class': 'form-control', 'style': 'width:100%'}),
+            'project': forms.Select(choices=choices, attrs={'class': 'form-control'}),
+            'team_leader': forms.Select(choices=team_choices, attrs={'class': 'form-control'}),
+
+        }
 
 
 class TeamForm(forms.Form):

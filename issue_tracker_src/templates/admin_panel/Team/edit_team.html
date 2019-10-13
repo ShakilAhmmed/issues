@@ -1,0 +1,186 @@
+{% extends 'admin_panel/index.html' %}
+{% block title %} Home {% endblock title%}
+{% block main_content %}
+
+<!-- Button trigger modal -->
+<!-- Modal -->
+{% if form.non_field_errors %}
+  <div class="alert alert-danger" style="margin: 1% 3% 0% 3%;">
+    {% for err in form.non_field_errors %}
+      <p class="text-danger">{{ err }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<form role="form" action="" method="POST">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="col-md-12">
+            <div class="panel panel-primary ">
+                <div class="panel-body">
+
+                    <div class="form-group">
+                        <label for="{{form.team_name.id_for_label}}">{{form.team_name.label}}</label>
+                        {{form.team_name}}
+                        <span class="text-danger">{{form.team_name.errors}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{form.description.id_for_label}}">{{form.description.label}}</label>
+                        {{form.description}}
+                        <span class="text-danger">{{form.description.errors}}</span>
+                    </div>
+
+                      <div class="form-group">
+                        <label for="{{form.project.id_for_label}}">{{form.project.label}}</label>
+                        {{form.project}}
+                        <span class="text-danger">{{form.project.errors}}</span>
+                    </div>
+
+
+                      <div class="form-group">
+                        <label for="{{form.team_leader.id_for_label}}">{{form.team_leader.label}}</label>
+                        {{form.team_leader}}
+                        <span class="text-danger">{{form.team_leader.errors}}</span>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="hidden" name="created_by" value="{{request.user.pk}}">
+                    </div>
+
+                    <div style="border: 1px;
+    background: lavender;
+    padding: 1px;
+    text-align: center;
+    color: black;
+    font-size: 15px;">
+                        <p style="margin-top: 5px;">Team Members</p>
+                    </div>
+                    <div class="input_fields_wrap form-group" style="margin-top: 10px;">
+                        {% for existing_team in get_value.team.all %}
+                             <div class="row remove_div">
+                                    <div class="col-sm-4" style="width: 285px;margin-left: 14px">
+                                        <select class="form-control members" name="member_name[]">
+                                             <option value="{{existing_team.member_name.pk}}">{{existing_team.member_name.email}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button type="button" style="margin-left: -16px;" class="remove_button btn btn-danger"><i class="fa fa-trash"></i></button>
+                                    </div>
+                                </div>
+                            <br>
+                        {% endfor %}
+
+                        <div class="row">
+                            <div class="col-sm-4" style="width: 285px;margin-left: 14px">
+                                <select class="form-control members" name="member_name[]">
+                                    <option value>--Select A Member --</option>
+                                    {% for team_leader_data in team_leader %}
+                                    <option value="{{team_leader_data.pk}}">{{team_leader_data.email}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="button" style="margin-left: -16px;"
+                                        class="add_field_button btn btn-success"><i class="fa fa-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+
+                    <div class="form-group" style="margin-top: 5px;margin-left: 12px;">
+                        <input type="submit" class="btn btn-success" value="Create Team">
+                    </div>
+
+
+                </div><!-- panel-body -->
+            </div>
+            <!-- panel -->
+
+        </div>
+    </div>
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var max_fields = 10; //maximum input boxes allowed
+        var wrapper = $(".input_fields_wrap"); //Fields wrapper
+        var add_button = $(".add_field_button"); //Add button ID
+
+        var x = 1; //initlal text box count
+
+        $(add_button).click(function (e) { //on add input button click
+            e.preventDefault();
+            if (x < max_fields) { //max input box allowed
+                x++; //text box increment
+                $(wrapper).append(`
+                    <div>
+                        <table>
+                            <tr>
+                                <td>
+                                  <select class="form-control members" name="member_name[]" style="margin-left: 14px;width: 255px;">
+                                        <option>--Select A Member --</option>
+                                        {% for team_leader_data in team_leader %}
+                                        <option value="{{team_leader_data.pk}}">{{team_leader_data.email}}</option>
+                                        {% endfor %}
+                                  </select>
+                                </td>
+                            </tr>
+                        <button class='btn btn-danger remove_field' style='width: 40px;margin-left: 280px;margin-bottom: -50px;'><i class="fa fa-trash"></i></button>
+                        </table>
+                    </div>`); //add input box
+            }
+            else
+            {
+                swal("Sorry!", "Only Ten Fields Are Allowed!", "error");
+            }
+        });
+
+        $(wrapper).on("click", ".remove_field", function (e) { //user click on remove text
+            e.preventDefault();
+            $(this).parent('div').remove();
+            x--;
+        })
+
+        $(wrapper).on('click', '.remove_button', function(e){
+             e.preventDefault();
+               if(x<1)
+               {
+                 swal("", "Filed Are Required", "warning");
+               }
+               else
+               {
+                 $(".add_button").attr("disabled", false);
+                  $(".sumbit_medicine").attr("disabled", false);
+                  $(this).closest(".remove_div").remove(); //Remove field html
+                 x--;
+
+               }
+
+
+        });
+
+    });
+
+
+
+    //Check Member Exists Or Not
+    var exists_members=[];
+    $(document).on("change",".members",function () {
+         var members=$(this).val();
+         if(exists_members.indexOf(members) != -1)
+         {
+             swal("Sorry!", "Member Already Selected!", "error");
+             $(this).val('');
+         }
+         else {
+             exists_members.push(members);
+         }
+
+        console.log(exists_members);
+    });
+
+</script>
+
+
+{% endblock main_content %}
