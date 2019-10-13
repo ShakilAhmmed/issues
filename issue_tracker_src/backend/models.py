@@ -10,6 +10,9 @@ class CustomUser(AbstractUser):
     # Issue Creator, Solver , Developer , Monitor
     access_level = models.CharField(max_length=20, default='Solver')
 
+    def __str__(self):
+        return self.email
+
 
 class ProjectModel(models.Model):
     project_title = models.CharField(max_length=30, unique=True, db_index=True, validators=[check_project_name])
