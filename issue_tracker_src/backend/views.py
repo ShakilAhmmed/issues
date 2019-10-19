@@ -252,8 +252,7 @@ def team_list(request):
     if request.GET.get('project_name'):
         team_list_data = team_list_data.filter(project__project_title__contains=request.GET.get('project_name'))
     if request.GET.get('leader_name'):
-        team_list_data = team_list_data.filter(team_leader__username=request.GET.get('leader_name'))
-
+        team_list_data = team_list_data.filter(team_leader__username__icontains=request.GET.get('leader_name'))
     team_list_data = Paginator(team_list_data, 10)  # Show 3 contacts per page Also Works While Search
     page = request.GET.get('page')
     team_list_data = team_list_data.get_page(page)
