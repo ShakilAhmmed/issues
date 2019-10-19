@@ -17,7 +17,7 @@ def admin_login(request):
         password = request.POST.get('password', None)
         try:
             get_user_name = CustomUser.objects.get(email=email)
-            user_logged_in = authenticate(username=get_user_name, password=password)
+            user_logged_in = authenticate(username=get_user_name.username, password=password)
             if user_logged_in is not None:
                 login(request, user_logged_in)
                 messages.success(request, f"Welcome Back {user_logged_in.username}")

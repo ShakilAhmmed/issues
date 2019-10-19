@@ -157,3 +157,15 @@ class TeamForm(forms.Form):
     #     existing_data = TeamModel.objects.filter(team_leader=self.cleaned_data['team_leader'])
     #     if existing_data.exists():
     #         raise ValidationError("Member Selected For Another Team")
+
+
+class TeamSearch(forms.Form):
+    team_name = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    project_name = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))
+    leader_name = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control'
+    }))

@@ -9,26 +9,33 @@
         </div>
         <div class="panel-body">
             <form method="get">
-                <div class="col-sm-12">
-                    <div class="col-sm-4">
-                        <div class="form-group">
-                            <!--                                               <input type="hidden" name="page" value="{{request.GET.page}}">-->
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
+    <div class="col-sm-12">
+        <div class="col-sm-3">
+           <div class="form-group">
+                <label for="{{form.team_name.id_for_label}}">{{form.team_name.label}}</label>
+                {{form.team_name}}
+            </div>
+        </div>
+         <div class="col-sm-3">
+           <div class="form-group">
+                <label for="{{form.leader_name.id_for_label}}">{{form.project_name.label}}</label>
+                {{form.project_name}}
 
-
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <div class="form-group">
-
-                            <button class="btn btn-success" style="margin-top: 8%" type="submit">Search</button>
-                        </div>
-                    </div>
-                </div>
-            </form>
+            </div>
+        </div>
+        <div class="col-sm-3">
+           <div class="form-group">
+                <label for="{{form.leader_name.id_for_label}}">{{form.leader_name.label}}</label>
+                {{form.leader_name}}
+            </div>
+        </div>
+        <div class="col-sm-3">
+           <div class="form-group">
+                <button class="btn btn-success" style="margin-top: 8%" type="submit">Search</button>
+            </div>
+        </div>
+    </div>
+</form>
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <table class="table table-striped table-bordered">
