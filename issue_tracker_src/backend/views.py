@@ -15,7 +15,7 @@ from .serializers import CustomUserSerializer, TeamSerializer
 from django.views import View
 from django.core.cache import cache
 from .models import CustomUser, ProjectModel, TeamModel, TeamMemberModel
-from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm, TeamForm, TeamModelForm
+from .forms import SignUpForm, ProjectForm, UserSearchForm, ProjectSearchForm, TeamForm, TeamModelForm, TeamSearch
 from django.core.paginator import Paginator
 from django.core import serializers
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
@@ -244,12 +244,22 @@ def create_team(request):
 @login_required
 def team_list(request):
     template_name = 'admin_panel/Team/team_list.html'
+    form = TeamSearch(request.GET)
+    print(request.GET)
     team_list_data = TeamModel.objects.select_related().all()
+    if request.GET.get('team_name'):
+        team_list_data = team_list_data.filter(team_name__contains=request.GET.get('team_name'))
+    if request.GET.get('project_name'):
+        team_list_data = team_list_data.filter(project__project_title__contains=request.GET.get('project_name'))
+    if request.GET.get('leader_name'):
+        team_list_data = team_list_data.filter(team_leader__username=request.GET.get('leader_name'))
+
     team_list_data = Paginator(team_list_data, 10)  # Show 3 contacts per page Also Works While Search
     page = request.GET.get('page')
     team_list_data = team_list_data.get_page(page)
     context = {
         'team_list_data': team_list_data,
+        'form': form
     }
     return render(request, template_name, context)
 
